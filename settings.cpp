@@ -79,15 +79,19 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
 
     Destroy();
 }
-bool Settings::ReadSettings(wxTextCtrl *textCtrl, wxString *content) {
+bool Settings::ReadSettings(wxTextCtrl *textCtrl, wxString* content) {
     wxString text = textCtrl->GetValue();
+    if(text == ""){
+        return false;
+    }
     *content = text;
     return true;
 }
 
 void Settings::OnSave(wxCommandEvent &event) {
     std::cout << getConfigPath() << std::endl;
-    ReadSettings(tc, &server);
+    wxString * serverPtr = &server;
+    ReadSettings(tc,serverPtr);
     std::cout << Settings::server << std::endl;
     Close(true);
 }
