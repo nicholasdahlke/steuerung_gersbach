@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(steuerung_gersbach)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 find_package(wxWidgets REQUIRED COMPONENTS net core base)
 include(${wxWidgets_USE_FILE})
 add_executable(steuerung_gersbach main.cpp settings.cpp settings.h)

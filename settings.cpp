@@ -2,7 +2,13 @@
 #include <string>
 #include "tomlcpp.hpp"
 #include <vector>
+#include <sys/stat.h>
+#include <cstring>
+#include <wx/textfile.h>
+#include <wx/filefn.h>
+#include <wx/wx.h>
 
+struct stat info;
 
 #ifdef _WIN64
 #define WINDOWS
@@ -17,6 +23,7 @@
 #define APPLE
 #endif
 
+#define ENDLINE "\n"
 
 enum {
     ID_SAVE=3,
@@ -49,6 +56,7 @@ std::string getConfigPath(){
 }
 
 Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(400,240)) {
+
     wxPanel *panel = new wxPanel(this, -1);
 
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
@@ -56,9 +64,14 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
 
     wxStaticBox *st = new wxStaticBox(panel, -1, wxT("Einstellungen"), wxPoint(5,5), wxSize(400,150));
 
-    wxStaticText *text = new wxStaticText(panel, -1, wxT("Server IP"), wxPoint(5,35));
+    wxStaticText *text_server = new wxStaticText(panel, -1, wxT("Server IP"), wxPoint(5,35));
+    wxStaticText *text_port = new wxStaticText(panel, -1, wxT("Server Port"), wxPoint(5,75));
 
-    wxTextCtrl *tc = new wxTextCtrl(panel, -1, wxT(" "), wxPoint(100,35));
+    wxTextCtrl *server_tc = new wxTextCtrl(panel, -1, wxT(" "), wxPoint(100,35));
+    wxTextCtrl *port_tc = new wxTextCtrl(panel, -1, wxT(" "), wxPoint(100,75));
+
+    Settings::server_ptr = server_tc;
+    Settings::port_ptr = port_tc;
 
     wxButton *okButton = new wxButton(this, ID_SAVE, wxT("Speichern"), wxDefaultPosition, wxSize(70,30));
     wxButton *closeButton = new wxButton(this, ID_CLOSE, wxT("Schließen"), wxDefaultPosition, wxSize(70,30));
@@ -79,7 +92,7 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
 
     Destroy();
 }
-bool Settings::ReadSettings(wxTextCtrl *textCtrl, wxString* content) {
+bool Settings::ReadText(wxTextCtrl *textCtrl, wxString* content) {
     wxString text = textCtrl->GetValue();
     if(text == ""){
         return false;
@@ -88,11 +101,48 @@ bool Settings::ReadSettings(wxTextCtrl *textCtrl, wxString* content) {
     return true;
 }
 
+bool Settings::writeSettings(std::string section, std::vector<std::vector<wxString>> content) {
+    std::string config_path = getConfigPath() + "/sternwarte_gersbach";
+    wxString config_file(config_path + "/config.toml");
+    wxString conf_path(config_path);
+
+
+    if (!wxDirExists(conf_path) && !wxMkdir(conf_path,0777))
+        return false;
+
+    wxTextFile file(config_file);
+
+    if (!wxFileExists(config_file))
+        file.Create();
+
+    if(!file.Open())
+        return false;
+
+    file.AddLine("title = \"Sternwarten Config\"");
+    file.AddLine(wxT(""));
+    file.AddLine("[" + section + "]");
+
+    std::vector<std::string>::size_type size = content.size();
+
+    for (unsigned i = 0; i < size; ++i) {
+        file.AddLine(content[i]);
+    }
+
+    file.Write();
+    file.Close();
+
+    return true;
+}
+
 void Settings::OnSave(wxCommandEvent &event) {
-    std::cout << getConfigPath() << std::endl;
-    wxString * serverPtr = &server;
-    ReadSettings(tc,serverPtr);
-    std::cout << Settings::server << std::endl;
+    ReadText(Settings::server_ptr, &server);
+    ReadText(Settings::port_ptr, &port);
+    std::vector<std::string> settings (2);
+    settings[0][0] = server;
+    settings[1][0] = port;
+
+    Settings::writeSettings("server", settings);
+
     Close(true);
 }
 
