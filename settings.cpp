@@ -28,7 +28,8 @@ struct stat info;
 enum {
     ID_SAVE=3,
     ID_CLOSE=4,
-    ID_SERVER=5
+    ID_SERVER=5,
+    ID_PORT=6
 };
 
 std::string GetEnv( const std::string & var ) {
@@ -67,8 +68,8 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
     wxStaticText *text_server = new wxStaticText(panel, -1, wxT("Server IP"), wxPoint(5,35));
     wxStaticText *text_port = new wxStaticText(panel, -1, wxT("Server Port"), wxPoint(5,75));
 
-    wxTextCtrl *server_tc = new wxTextCtrl(panel, -1, wxT(" "), wxPoint(100,35));
-    wxTextCtrl *port_tc = new wxTextCtrl(panel, -1, wxT(" "), wxPoint(100,75));
+    wxTextCtrl *server_tc = new wxTextCtrl(panel, ID_SERVER, wxT(" "), wxPoint(100,35));
+    wxTextCtrl *port_tc = new wxTextCtrl(panel, ID_PORT, wxT(" "), wxPoint(100,75));
 
     Settings::server_ptr = server_tc;
     Settings::port_ptr = port_tc;
@@ -86,6 +87,8 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
 
     Connect(ID_CLOSE, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Settings::OnClose));
     Connect(ID_SAVE, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Settings::OnSave));
+    Bind(wxEVT_TEXT, &Settings::OnTextEditChanges, this, ID_SERVER);
+
 
     Centre();
     ShowModal();
@@ -118,14 +121,14 @@ bool Settings::writeSettings(std::string section, std::vector<std::vector<wxStri
     if(!file.Open())
         return false;
 
+    file.Clear();
+
     file.AddLine("title = \"Sternwarten Config\"");
     file.AddLine(wxT(""));
     file.AddLine("[" + section + "]");
 
-    std::vector<std::string>::size_type size = content.size();
-
-    for (unsigned i = 0; i < size; ++i) {
-        file.AddLine(content[i]);
+    for (int i = 0; i < 2; ++i) {
+        file.AddLine(content[i][0] + "= \"" + content[i][1] + "\"");
     }
 
     file.Write();
@@ -137,9 +140,11 @@ bool Settings::writeSettings(std::string section, std::vector<std::vector<wxStri
 void Settings::OnSave(wxCommandEvent &event) {
     ReadText(Settings::server_ptr, &server);
     ReadText(Settings::port_ptr, &port);
-    std::vector<std::string> settings (2);
-    settings[0][0] = server;
-    settings[1][0] = port;
+    std::vector< std::vector<wxString> > settings(2, std::vector<wxString>(2));
+    settings[0][0] = wxT("server");
+    settings[1][0] = wxT("port");
+    settings[0][1] = Settings::server;
+    settings[1][1] = Settings::port;
 
     Settings::writeSettings("server", settings);
 
@@ -148,4 +153,8 @@ void Settings::OnSave(wxCommandEvent &event) {
 
 void Settings::OnClose(wxCommandEvent &event) {
     Close(true);
+}
+
+void Settings::OnTextEditChanges(wxCommandEvent &event) {
+
 }

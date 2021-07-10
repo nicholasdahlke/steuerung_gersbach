@@ -16,5 +16,6 @@ private:
     void OnClose(wxCommandEvent& event);
     void OnSave(wxCommandEvent& event);
     bool ReadText(wxTextCtrl *textCtrl, wxString *content);
-    bool writeSettings(std::string section,std::vector<std::string> content);
+    bool writeSettings(std::string section,std::vector<std::vector<wxString>> content);
+    void OnTextEditChanges(wxCommandEvent& event);
 };
