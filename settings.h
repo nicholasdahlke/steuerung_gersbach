@@ -15,7 +15,8 @@ public:
 private:
     void OnClose(wxCommandEvent& event);
     void OnSave(wxCommandEvent& event);
+    void OnTextEditChange(wxCommandEvent& event);
     bool ReadText(wxTextCtrl *textCtrl, wxString *content);
     bool writeSettings(std::string section,std::vector<std::vector<wxString>> content);
-    void OnTextEditChanges(wxCommandEvent& event);
+    bool checkIllegalCharacters(wxTextCtrl *textCtrl, std::vector<int> characters, wxCommandEvent *event);
 };

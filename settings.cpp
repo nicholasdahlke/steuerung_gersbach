@@ -7,6 +7,7 @@
 #include <wx/textfile.h>
 #include <wx/filefn.h>
 #include <wx/wx.h>
+#include <cctype>
 
 struct stat info;
 
@@ -23,13 +24,17 @@ struct stat info;
 #define APPLE
 #endif
 
-#define ENDLINE "\n"
-
 enum {
     ID_SAVE=3,
     ID_CLOSE=4,
     ID_SERVER=5,
     ID_PORT=6
+};
+enum {
+    ALNUM=1,
+    ALPHA=2,
+    DIGIT=3,
+    SPACE=4
 };
 
 std::string GetEnv( const std::string & var ) {
@@ -87,7 +92,8 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
 
     Connect(ID_CLOSE, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Settings::OnClose));
     Connect(ID_SAVE, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Settings::OnSave));
-    Bind(wxEVT_TEXT, &Settings::OnTextEditChanges, this, ID_SERVER);
+    Bind(wxEVT_TEXT, &Settings::OnTextEditChange, this, ID_SERVER);
+    Bind(wxEVT_TEXT, &Settings::OnTextEditChange, this, ID_PORT);
 
 
     Centre();
@@ -128,7 +134,7 @@ bool Settings::writeSettings(std::string section, std::vector<std::vector<wxStri
     file.AddLine("[" + section + "]");
 
     for (int i = 0; i < 2; ++i) {
-        file.AddLine(content[i][0] + "= \"" + content[i][1] + "\"");
+        file.AddLine(content[i][0] + "=\"" + content[i][1] + "\"");
     }
 
     file.Write();
@@ -155,6 +161,35 @@ void Settings::OnClose(wxCommandEvent &event) {
     Close(true);
 }
 
-void Settings::OnTextEditChanges(wxCommandEvent &event) {
+void Settings::OnTextEditChange(wxCommandEvent &event) {
 
+}
+
+bool Settings::checkIllegalCharacters(wxTextCtrl *textCtrl, std::vector<int> characters, wxCommandEvent *event) {
+    if (event == nullptr)
+        return false;
+
+    auto returnIllegalPosition = [](bool (*callbackFunc)(int), wxString string, wxTextCtrl *text) {
+        for(int i = 0; i < string.size(); i++){
+            if(!(*callbackFunc)(string[i]))
+                text->Remove(i,i);
+        }
+    };
+
+    wxString text = event->GetString();
+    for (auto const& value: characters) {
+        switch (value) {
+            case ALNUM:
+                if (!returnIllegalPosition(reinterpret_cast<bool (*)(int)>(isalnum), value, textCtrl));
+                return false;
+            case ALPHA:
+                sd;
+
+            case DIGIT:
+                sd;
+
+            case SPACE:
+                sd;
+        }
+    }
 }
