@@ -169,27 +169,34 @@ bool Settings::checkIllegalCharacters(wxTextCtrl *textCtrl, std::vector<int> cha
     if (event == nullptr)
         return false;
 
-    auto returnIllegalPosition = [](bool (*callbackFunc)(int), wxString string, wxTextCtrl *text) {
-        for(int i = 0; i < string.size(); i++){
-            if(!(*callbackFunc)(string[i]))
-                text->Remove(i,i);
-        }
-    };
+
 
     wxString text = event->GetString();
     for (auto const& value: characters) {
         switch (value) {
             case ALNUM:
-                if (!returnIllegalPosition(reinterpret_cast<bool (*)(int)>(isalnum), value, textCtrl));
-                return false;
+                if (!returnIllegalPosition(isalnum, text, textCtrl))
+                    return false;
             case ALPHA:
-                sd;
+                if (!returnIllegalPosition(isalpha, text, textCtrl))
+                    return false;
 
             case DIGIT:
-                sd;
-
+                if (!returnIllegalPosition(isdigit, text, textCtrl))
+                    return false;
             case SPACE:
-                sd;
+                if (!returnIllegalPosition(isspace, text, textCtrl))
+                    return false;
         }
     }
 }
+
+bool Settings::returnIllegalPosition(int (*callbackFunc)(int), wxString string, wxTextCtrl *text) {
+    if (text == nullptr)
+        return false;
+    for(int i = 0; i < string.size(); i++){
+        if(!(*callbackFunc)(string[i]))
+            text->Remove(i,i);
+    }
+    return true;
+};

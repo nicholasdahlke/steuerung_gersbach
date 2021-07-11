@@ -19,4 +19,5 @@ private:
     bool ReadText(wxTextCtrl *textCtrl, wxString *content);
     bool writeSettings(std::string section,std::vector<std::vector<wxString>> content);
     bool checkIllegalCharacters(wxTextCtrl *textCtrl, std::vector<int> characters, wxCommandEvent *event);
+    bool returnIllegalPosition(int (*callbackFunc)(int), wxString string, wxTextCtrl *text);
 };
