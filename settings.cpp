@@ -162,7 +162,13 @@ void Settings::OnClose(wxCommandEvent &event) {
 }
 
 void Settings::OnTextEditChange(wxCommandEvent &event) {
+    switch (event.GetId()) {
+        case ID_SERVER:
+            int a;
 
+        case ID_PORT:
+            Settings::checkIllegalCharacters(port_ptr, {DIGIT}, &event);
+    }
 }
 
 bool Settings::checkIllegalCharacters(wxTextCtrl *textCtrl, std::vector<int> characters, wxCommandEvent *event) {
