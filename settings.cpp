@@ -36,6 +36,12 @@ enum {
     DIGIT=3,
     SPACE=4
 };
+enum {
+    USER_CHANGED=true,
+    PROGRAMM_CHANGED=3,
+    ERROR= false
+
+};
 
 std::string GetEnv( const std::string & var ) {
     const char * val = std::getenv( var.c_str() );
@@ -162,16 +168,26 @@ void Settings::OnClose(wxCommandEvent &event) {
 }
 
 void Settings::OnTextEditChange(wxCommandEvent &event) {
-    switch (event.GetId()) {
-        case ID_SERVER:
-            int a;
+    if (Settings::i){
+        switch (event.GetId()) {
+            case ID_SERVER:
+                int a;
 
-        case ID_PORT:
-            Settings::checkIllegalCharacters(port_ptr, {DIGIT}, &event);
+            case ID_PORT:
+                Settings::checkIllegalCharacters(port_ptr, {DIGIT}, &event);
+        }switch (event.GetId()) {
+            case ID_SERVER:
+                int a;
+
+            case ID_PORT:
+                Settings::checkIllegalCharacters(port_ptr, {DIGIT}, &event);
+        }
+    } else {
+        Settings::i = true;
     }
 }
 
-bool Settings::checkIllegalCharacters(wxTextCtrl *textCtrl, std::vector<int> characters, wxCommandEvent *event) {
+char Settings::checkIllegalCharacters(wxTextCtrl *textCtrl, std::vector<int> characters, wxCommandEvent *event) {
     if (event == nullptr)
         return false;
 
@@ -181,28 +197,42 @@ bool Settings::checkIllegalCharacters(wxTextCtrl *textCtrl, std::vector<int> cha
     for (auto const& value: characters) {
         switch (value) {
             case ALNUM:
-                if (!returnIllegalPosition(isalnum, text, textCtrl))
-                    return false;
+                if (returnIllegalPosition(isalnum, text, textCtrl) == PROGRAMM_CHANGED)
+                    return PROGRAMM_CHANGED;
+                else if (returnIllegalPosition(isalnum, text, textCtrl) == ERROR)
+                    return ERROR;
+
             case ALPHA:
-                if (!returnIllegalPosition(isalpha, text, textCtrl))
-                    return false;
+                if (returnIllegalPosition(isalpha, text, textCtrl) == PROGRAMM_CHANGED)
+                    return PROGRAMM_CHANGED;
+                else if (returnIllegalPosition(isalpha, text, textCtrl) == ERROR)
+                    return ERROR;
 
             case DIGIT:
-                if (!returnIllegalPosition(isdigit, text, textCtrl))
-                    return false;
+                if (returnIllegalPosition(isdigit, text, textCtrl) == PROGRAMM_CHANGED)
+                    return PROGRAMM_CHANGED;
+                else if (returnIllegalPosition(isalnum, text, textCtrl) == ERROR)
+                    return ERROR;
             case SPACE:
-                if (!returnIllegalPosition(isspace, text, textCtrl))
-                    return false;
+                if (returnIllegalPosition(isspace, text, textCtrl) == PROGRAMM_CHANGED)
+                    return PROGRAMM_CHANGED;
+                else if (returnIllegalPosition(isalnum, text, textCtrl) == ERROR)
+                    return ERROR;
         }
     }
 }
 
-bool Settings::returnIllegalPosition(int (*callbackFunc)(int), wxString string, wxTextCtrl *text) {
+char Settings::returnIllegalPosition(int (*callbackFunc)(int), wxString string, wxTextCtrl *text) {
+    bool programm_changed = ERROR;
     if (text == nullptr)
         return false;
     for(int i = 0; i < string.size(); i++){
         if(!(*callbackFunc)(string[i]))
             text->Remove(i,i);
+            programm_changed = true;
     }
-    return true;
+    if (programm_changed)
+        return PROGRAMM_CHANGED;
+    else
+        return USER_CHANGED;
 };
