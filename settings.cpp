@@ -70,6 +70,9 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
     wxTextCtrl *server_tc = new wxTextCtrl(panel, ID_SERVER, wxT(" "), wxPoint(100, 35));
     wxTextCtrl *port_tc = new wxTextCtrl(panel, ID_PORT, wxT(" "), wxPoint(100, 75));
 
+    server_tc->SetToolTip("IP Adresse des Servers, z.B 123.456.78.90");
+    port_tc->SetToolTip("Port des Servers, z.B 440");
+
     Settings::server_ptr = server_tc;
     Settings::port_ptr = port_tc;
 
