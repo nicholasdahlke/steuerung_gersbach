@@ -38,7 +38,7 @@ bool MyApp::OnInit() {
 
 MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Sternwarte", wxDefaultPosition, wxSize(700, 700)) {
     wxMenu *menuFile = new wxMenu;
-    menuFile->Append(ID_SETTINGS, "&Einstellungen","Öffnet die Einstellungen");
+    menuFile->Append(ID_SETTINGS, "&Einstellungen","Ruft die Einstellungen auf");
     menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT);
 

@@ -148,6 +148,17 @@ void Settings::OnSave(wxCommandEvent &event) {
             return;
         }
     }
+    for (auto const &value: server) {
+        if (!isdigit(value)) {
+            if(ispunct(value))
+                break;
+            if (!ispunct(value)) {
+                wxMessageBox(wxT("Fehler. Nicht erlaubter Character eingegeben."), wxT("Fehler"), wxICON_ERROR);
+                server = "";
+                return;
+            }
+        }
+    }
     std::vector<std::vector<wxString> > settings(2, std::vector<wxString>(2));
     settings[0][0] = wxT("server");
     settings[1][0] = wxT("port");
