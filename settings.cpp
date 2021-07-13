@@ -25,40 +25,27 @@ struct stat info;
 #endif
 
 enum {
-    ID_SAVE=3,
-    ID_CLOSE=4,
-    ID_SERVER=5,
-    ID_PORT=6
-};
-enum {
-    ALNUM=1,
-    ALPHA=2,
-    DIGIT=3,
-    SPACE=4
-};
-enum {
-    USER_CHANGED=true,
-    PROGRAMM_CHANGED=3,
-    ERROR= false
-
+    ID_SAVE = 3,
+    ID_CLOSE = 4,
+    ID_SERVER = 5,
+    ID_PORT = 6
 };
 
-std::string GetEnv( const std::string & var ) {
-    const char * val = std::getenv( var.c_str() );
-    if ( val == nullptr ) {
+std::string GetEnv(const std::string &var) {
+    const char *val = std::getenv(var.c_str());
+    if (val == nullptr) {
         return "";
-    }
-    else {
+    } else {
         return val;
     }
 }
 
 
-std::string getConfigPath(){
+std::string getConfigPath() {
 #ifdef WINDOWS
 #endif
 #ifdef LINUX
-    if(GetEnv("XDG_CONFIG_HOME") == "") {
+    if (GetEnv("XDG_CONFIG_HOME") == "") {
         return GetEnv("HOME") + "/.config";
     } else {
         return GetEnv("XDG_CONFIG_HOME");
@@ -67,26 +54,26 @@ std::string getConfigPath(){
 
 }
 
-Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(400,240)) {
+Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(400, 240)) {
 
     wxPanel *panel = new wxPanel(this, -1);
 
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
 
-    wxStaticBox *st = new wxStaticBox(panel, -1, wxT("Einstellungen"), wxPoint(5,5), wxSize(400,150));
+    wxStaticBox *st = new wxStaticBox(panel, -1, wxT("Einstellungen"), wxPoint(5, 5), wxSize(400, 150));
 
-    wxStaticText *text_server = new wxStaticText(panel, -1, wxT("Server IP"), wxPoint(5,35));
-    wxStaticText *text_port = new wxStaticText(panel, -1, wxT("Server Port"), wxPoint(5,75));
+    wxStaticText *text_server = new wxStaticText(panel, -1, wxT("Server IP"), wxPoint(5, 35));
+    wxStaticText *text_port = new wxStaticText(panel, -1, wxT("Server Port"), wxPoint(5, 75));
 
-    wxTextCtrl *server_tc = new wxTextCtrl(panel, ID_SERVER, wxT(" "), wxPoint(100,35));
-    wxTextCtrl *port_tc = new wxTextCtrl(panel, ID_PORT, wxT(" "), wxPoint(100,75));
+    wxTextCtrl *server_tc = new wxTextCtrl(panel, ID_SERVER, wxT(" "), wxPoint(100, 35));
+    wxTextCtrl *port_tc = new wxTextCtrl(panel, ID_PORT, wxT(" "), wxPoint(100, 75));
 
     Settings::server_ptr = server_tc;
     Settings::port_ptr = port_tc;
 
-    wxButton *okButton = new wxButton(this, ID_SAVE, wxT("Speichern"), wxDefaultPosition, wxSize(70,30));
-    wxButton *closeButton = new wxButton(this, ID_CLOSE, wxT("Schließen"), wxDefaultPosition, wxSize(70,30));
+    wxButton *okButton = new wxButton(this, ID_SAVE, wxT("Speichern"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(this, ID_CLOSE, wxT("Schließen"), wxDefaultPosition, wxSize(70, 30));
 
     hbox->Add(okButton, 1);
     hbox->Add(closeButton, 1, wxLEFT, 5);
@@ -98,8 +85,6 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
 
     Connect(ID_CLOSE, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Settings::OnClose));
     Connect(ID_SAVE, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(Settings::OnSave));
-    Bind(wxEVT_TEXT, &Settings::OnTextEditChange, this, ID_SERVER);
-    Bind(wxEVT_TEXT, &Settings::OnTextEditChange, this, ID_PORT);
 
 
     Centre();
@@ -107,9 +92,10 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
 
     Destroy();
 }
-bool Settings::ReadText(wxTextCtrl *textCtrl, wxString* content) {
+
+bool Settings::ReadText(wxTextCtrl *textCtrl, wxString *content) {
     wxString text = textCtrl->GetValue();
-    if(text == ""){
+    if (text == "") {
         return false;
     }
     *content = text;
@@ -122,7 +108,7 @@ bool Settings::writeSettings(std::string section, std::vector<std::vector<wxStri
     wxString conf_path(config_path);
 
 
-    if (!wxDirExists(conf_path) && !wxMkdir(conf_path,0777))
+    if (!wxDirExists(conf_path) && !wxMkdir(conf_path, 0777))
         return false;
 
     wxTextFile file(config_file);
@@ -130,7 +116,7 @@ bool Settings::writeSettings(std::string section, std::vector<std::vector<wxStri
     if (!wxFileExists(config_file))
         file.Create();
 
-    if(!file.Open())
+    if (!file.Open())
         return false;
 
     file.Clear();
@@ -152,7 +138,15 @@ bool Settings::writeSettings(std::string section, std::vector<std::vector<wxStri
 void Settings::OnSave(wxCommandEvent &event) {
     ReadText(Settings::server_ptr, &server);
     ReadText(Settings::port_ptr, &port);
-    std::vector< std::vector<wxString> > settings(2, std::vector<wxString>(2));
+
+    for (auto const& value: Settings::port) {
+        if (!isdigit(value)) {
+            wxMessageBox(wxT("Fehler. Nicht erlaubter Character eingegeben."), wxT("Fehler"), wxICON_ERROR);
+            port = "";
+            return;
+        }
+    }
+    std::vector<std::vector<wxString> > settings(2, std::vector<wxString>(2));
     settings[0][0] = wxT("server");
     settings[1][0] = wxT("port");
     settings[0][1] = Settings::server;
@@ -167,72 +161,3 @@ void Settings::OnClose(wxCommandEvent &event) {
     Close(true);
 }
 
-void Settings::OnTextEditChange(wxCommandEvent &event) {
-    if (Settings::i){
-        switch (event.GetId()) {
-            case ID_SERVER:
-                int a;
-
-            case ID_PORT:
-                Settings::checkIllegalCharacters(port_ptr, {DIGIT}, &event);
-        }switch (event.GetId()) {
-            case ID_SERVER:
-                int a;
-
-            case ID_PORT:
-                Settings::checkIllegalCharacters(port_ptr, {DIGIT}, &event);
-        }
-    } else {
-        Settings::i = true;
-    }
-}
-
-char Settings::checkIllegalCharacters(wxTextCtrl *textCtrl, std::vector<int> characters, wxCommandEvent *event) {
-    if (event == nullptr)
-        return false;
-
-
-
-    wxString text = event->GetString();
-    for (auto const& value: characters) {
-        switch (value) {
-            case ALNUM:
-                if (returnIllegalPosition(isalnum, text, textCtrl) == PROGRAMM_CHANGED)
-                    return PROGRAMM_CHANGED;
-                else if (returnIllegalPosition(isalnum, text, textCtrl) == ERROR)
-                    return ERROR;
-
-            case ALPHA:
-                if (returnIllegalPosition(isalpha, text, textCtrl) == PROGRAMM_CHANGED)
-                    return PROGRAMM_CHANGED;
-                else if (returnIllegalPosition(isalpha, text, textCtrl) == ERROR)
-                    return ERROR;
-
-            case DIGIT:
-                if (returnIllegalPosition(isdigit, text, textCtrl) == PROGRAMM_CHANGED)
-                    return PROGRAMM_CHANGED;
-                else if (returnIllegalPosition(isalnum, text, textCtrl) == ERROR)
-                    return ERROR;
-            case SPACE:
-                if (returnIllegalPosition(isspace, text, textCtrl) == PROGRAMM_CHANGED)
-                    return PROGRAMM_CHANGED;
-                else if (returnIllegalPosition(isalnum, text, textCtrl) == ERROR)
-                    return ERROR;
-        }
-    }
-}
-
-char Settings::returnIllegalPosition(int (*callbackFunc)(int), wxString string, wxTextCtrl *text) {
-    bool programm_changed = ERROR;
-    if (text == nullptr)
-        return false;
-    for(int i = 0; i < string.size(); i++){
-        if(!(*callbackFunc)(string[i]))
-            text->Remove(i,i);
-            programm_changed = true;
-    }
-    if (programm_changed)
-        return PROGRAMM_CHANGED;
-    else
-        return USER_CHANGED;
-};
