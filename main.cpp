@@ -11,9 +11,9 @@ public:
     virtual bool OnInit();
 };
 
-class MyFrame : public wxFrame {
+class MainWindow : public wxFrame {
 public:
-    MyFrame();
+    MainWindow();
 
 
 private:
@@ -31,12 +31,12 @@ enum {
 wxIMPLEMENT_APP(MyApp);
 
 bool MyApp::OnInit() {
-    MyFrame *frame = new MyFrame();
+    MainWindow *frame = new MainWindow();
     frame->Show(true);
     return true;
 }
 
-MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Sternwarte", wxDefaultPosition, wxSize(700, 700)) {
+MainWindow::MainWindow() : wxFrame(NULL, wxID_ANY, "Sternwarte", wxDefaultPosition, wxSize(700, 700)) {
     wxMenu *menuFile = new wxMenu;
     menuFile->Append(ID_SETTINGS, "&Einstellungen","Ruft die Einstellungen auf");
     menuFile->AppendSeparator();
@@ -58,29 +58,29 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Sternwarte", wxDefaultPosition, wx
 
     wxButton *button = new wxButton(panel, ID_BUTTON, wxT("Button"), wxPoint(20,20));
 
-    Connect(ID_BUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MyFrame::OnButton));
-    Bind(wxEVT_MENU, &MyFrame::OnSettings, this, ID_SETTINGS);
-    Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
-    Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
+    Connect(ID_BUTTON, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainWindow::OnButton));
+    Bind(wxEVT_MENU, &MainWindow::OnSettings, this, ID_SETTINGS);
+    Bind(wxEVT_MENU, &MainWindow::OnAbout, this, wxID_ABOUT);
+    Bind(wxEVT_MENU, &MainWindow::OnExit, this, wxID_EXIT);
 
     button->SetFocus();
     Centre();
 }
 
-void MyFrame::OnExit(wxCommandEvent &event) {
+void MainWindow::OnExit(wxCommandEvent &event) {
     Close(true);
 }
 
-void MyFrame::OnAbout(wxCommandEvent &event) {
+void MainWindow::OnAbout(wxCommandEvent &event) {
     wxMessageBox("Geschrieben von Nicholas Dahlke \n nicholas.dahlke@gmx.de", "Über Sternwarten Steuerung Gersbach", wxOK | wxICON_INFORMATION);
 }
 
-void MyFrame::OnSettings(wxCommandEvent &event) {
+void MainWindow::OnSettings(wxCommandEvent &event) {
     Settings *settings = new Settings(wxT("Custom Dialog"));
     settings->Show();
 
 }
 
-void MyFrame::OnButton(wxCommandEvent &event) {
+void MainWindow::OnButton(wxCommandEvent &event) {
     std::cout << "Button pressed" << std::endl;
 }
