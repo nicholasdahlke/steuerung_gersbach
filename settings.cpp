@@ -8,6 +8,7 @@
 #include <wx/filefn.h>
 #include <wx/wx.h>
 #include <cctype>
+#include <algorithm>
 
 struct stat info;
 
@@ -98,6 +99,7 @@ bool Settings::ReadText(wxTextCtrl *textCtrl, wxString *content) {
     if (text == "") {
         return false;
     }
+    text.erase(std::remove_if(text.begin(), text.end(), ::isspace), text.end());
     *content = text;
     return true;
 }
@@ -139,7 +141,7 @@ void Settings::OnSave(wxCommandEvent &event) {
     ReadText(Settings::server_ptr, &server);
     ReadText(Settings::port_ptr, &port);
 
-    for (auto const& value: Settings::port) {
+    for (auto const &value: port) {
         if (!isdigit(value)) {
             wxMessageBox(wxT("Fehler. Nicht erlaubter Character eingegeben."), wxT("Fehler"), wxICON_ERROR);
             port = "";
