@@ -15,8 +15,8 @@ private:
     void OnClose(wxCommandEvent& event);
     void OnSave(wxCommandEvent& event);
     bool ReadText(wxTextCtrl *textCtrl, wxString *content);
-    bool writeSettings(std::string section,std::vector<std::vector<wxString>> content);
+    bool writeSettings(std::vector<std::vector<wxString>> content);
 
-    bool readToml(std::string path, std::string section, std::string content);
-    std::string getConfFile(std::string a);
+    void readToml(std::string content, wxTextCtrl *textCtrl);
+    std::string getConfFile();
 };

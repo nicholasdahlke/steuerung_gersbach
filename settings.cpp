@@ -1,16 +1,14 @@
 #include "settings.h"
 #include <string>
-#include "tomlcpp.hpp"
 #include <vector>
-#include <sys/stat.h>
 #include <cstring>
 #include <wx/textfile.h>
 #include <wx/filefn.h>
 #include <wx/wx.h>
 #include <cctype>
 #include <algorithm>
+#include "toml.hpp"
 
-struct stat info;
 
 #ifdef _WIN64
 #define WINDOWS
@@ -47,7 +45,7 @@ std::string getConfigPath() {
 #endif
 #ifdef LINUX
     if (GetEnv("XDG_CONFIG_HOME") == "") {
-        return GetEnv("HOME") + "/.config";
+        return GetEnv("HOME") + "/.config/sternwarte_gersbach";
     } else {
         return GetEnv("XDG_CONFIG_HOME");
     }
@@ -69,6 +67,11 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
 
     wxTextCtrl *server_tc = new wxTextCtrl(panel, ID_SERVER, wxT(" "), wxPoint(100, 35));
     wxTextCtrl *port_tc = new wxTextCtrl(panel, ID_PORT, wxT(" "), wxPoint(100, 75));
+
+    if (!wxFileExists(getConfFile())) {
+        readToml("server", server_tc);
+        readToml("port", port_tc);
+    }
 
     server_tc->SetToolTip("IP Adresse des Servers, z.B 123.456.78.90");
     port_tc->SetToolTip("Port des Servers, z.B 440");
@@ -107,10 +110,9 @@ bool Settings::ReadText(wxTextCtrl *textCtrl, wxString *content) {
     return true;
 }
 
-bool Settings::writeSettings(std::string section, std::vector<std::vector<wxString>> content) {
-    std::string config_path = getConfigPath() + "/sternwarte_gersbach";
-    wxString config_file(config_path + "/config.toml");
-    wxString conf_path(config_path);
+bool Settings::writeSettings(std::vector<std::vector<wxString>> content) {
+    wxString config_file(getConfFile());
+    wxString conf_path(getConfigPath());
 
 
     if (!wxDirExists(conf_path) && !wxMkdir(conf_path, 0777))
@@ -128,7 +130,6 @@ bool Settings::writeSettings(std::string section, std::vector<std::vector<wxStri
 
     file.AddLine("title = \"Sternwarten Config\"");
     file.AddLine(wxT(""));
-    file.AddLine("[" + section + "]");
 
     for (int i = 0; i < 2; ++i) {
         file.AddLine(content[i][0] + "=\"" + content[i][1] + "\"");
@@ -168,7 +169,7 @@ void Settings::OnSave(wxCommandEvent &event) {
     settings[0][1] = Settings::server;
     settings[1][1] = Settings::port;
 
-    Settings::writeSettings("server", settings);
+    Settings::writeSettings(settings);
 
     Close(true);
 }
@@ -177,3 +178,29 @@ void Settings::OnClose(wxCommandEvent &event) {
     Close(true);
 }
 
+void Settings::readToml(std::string content, wxTextCtrl *textCtrl) {
+    toml::table tbl;
+    try {
+        tbl = toml::parse_file(getConfFile());
+        std::cout << tbl << std::endl;
+    }
+    catch(const toml::parse_error& err) {
+        std::cerr << "Parsing failed: \n" << err << std::endl;
+        return;
+    }
+    std::optional<std::string> str = tbl[content].value<std::string>();
+    textCtrl->SetValue(str.value_or(""));
+    return;
+}
+
+std::string Settings::getConfFile() {
+    std::string path = getConfigPath();
+#ifdef WINDOWS
+    std::string directory_escape = "\\";
+#endif
+#if defined(LINUX) || (APPLE)
+    std::string directory_escape = "/";
+#endif
+    return getConfigPath() + directory_escape + "config.toml";
+
+}
