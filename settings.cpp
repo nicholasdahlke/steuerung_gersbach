@@ -68,7 +68,7 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
     wxTextCtrl *server_tc = new wxTextCtrl(panel, ID_SERVER, wxT(" "), wxPoint(100, 35));
     wxTextCtrl *port_tc = new wxTextCtrl(panel, ID_PORT, wxT(" "), wxPoint(100, 75));
 
-    if (!wxFileExists(getConfFile())) {
+    if (wxFileExists(getConfFile())) {
         readToml("server", server_tc);
         readToml("port", port_tc);
     }

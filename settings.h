@@ -8,10 +8,11 @@ public:
     Settings(const wxString& title);
     wxString server = "";
     wxString port = "";
-    wxTextCtrl* server_ptr;
-    wxTextCtrl* port_ptr;
+
 
 private:
+    wxTextCtrl* server_ptr;
+    wxTextCtrl* port_ptr;
     void OnClose(wxCommandEvent& event);
     void OnSave(wxCommandEvent& event);
     bool ReadText(wxTextCtrl *textCtrl, wxString *content);
