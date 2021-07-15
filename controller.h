@@ -1,12 +1,16 @@
 #include <string>
-#include <curlpp/cURLpp.hpp>
-#include <curlpp/Option.hpp>
+#include <cpr/cpr.h>
 
 class Controller {
 public:
     Controller();
-
+    void setIp(std::string& ip);
+    void setPort(std::string& port);
+    int getConnectionStatus();
 private:
+    std::string ip_addr;
+    std::string port;
+    std::string getRequest(std::string url, std::string port, std::map<std::string, std::string> parameters);
 
 };
 

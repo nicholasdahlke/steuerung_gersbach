@@ -9,4 +9,5 @@ private:
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     void OnButton(wxCommandEvent& event);
+    void OnConnect(wxCommandEvent& event);
 };

@@ -193,6 +193,8 @@ void Settings::readToml(std::string content, wxTextCtrl *textCtrl) {
     return;
 }
 
+
+
 std::string Settings::getConfFile() {
     std::string path = getConfigPath();
 #ifdef WINDOWS
@@ -203,4 +205,18 @@ std::string Settings::getConfFile() {
 #endif
     return getConfigPath() + directory_escape + "config.toml";
 
+}
+
+std::string Settings::readToml(std::string content) {
+    toml::table tbl;
+    try {
+        tbl = toml::parse_file(getConfFile());
+        std::cout << tbl << std::endl;
+    }
+    catch(const toml::parse_error& err) {
+        std::cerr << "Parsing failed: \n" << err << std::endl;
+        return "error";
+    }
+    std::optional<std::string> str = tbl[content].value<std::string>();
+    return str.value_or("");
 }

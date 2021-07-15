@@ -1,15 +1,13 @@
 cmake_minimum_required(VERSION 3.15)
 project(steuerung_gersbach)
-
+include(FetchContent)
 set(CMAKE_CXX_STANDARD 17)
 find_package(wxWidgets REQUIRED COMPONENTS net core base)
 include(${wxWidgets_USE_FILE})
-
+FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/whoshuu/cpr.git GIT_TAG c8d33915dbd88ad6c92b258869b03aba06587ff9) # the commit hash for 1.5.0
 add_executable(steuerung_gersbach main.cpp settings.cpp settings.h mainwindow.h mainwindow.cpp toml.hpp controller.cpp controller.h)
-
-target_link_libraries(steuerung_gersbach ${wxWidgets_LIBRARIES})
-
-
+FetchContent_MakeAvailable(cpr)
+target_link_libraries(steuerung_gersbach ${wxWidgets_LIBRARIES} cpr::cpr)
 #Windows Compiling
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(BUILD_FOR_WIN TRUE)
