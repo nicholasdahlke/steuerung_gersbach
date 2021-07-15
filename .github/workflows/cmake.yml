@@ -29,7 +29,7 @@ jobs:
       
     - name: Install libcurlpp
       
-      run: sudo apt install libcurlpp-dev curl
+      run: sudo apt install curl libcurlpp-dev
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
