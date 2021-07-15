@@ -26,6 +26,10 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       
       run: sudo apt install libwxgtk3.0-gtk3-dev libwxgtk3.0-gtk3-0v5
+      
+    - name: Install libcurlpp
+      
+      run: sudo apt install curl libcurlpp-dev libcurl4-openssl-dev
 
     - name: Install libcurl
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
