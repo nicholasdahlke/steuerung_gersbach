@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(wxWidgets REQUIRED COMPONENTS net core base)
 include(${wxWidgets_USE_FILE})
 
-add_executable(steuerung_gersbach main.cpp settings.cpp settings.h mainwindow.h mainwindow.cpp toml.hpp)
+add_executable(steuerung_gersbach main.cpp settings.cpp settings.h mainwindow.h mainwindow.cpp toml.hpp controller.cpp controller.h)
 
 target_link_libraries(steuerung_gersbach ${wxWidgets_LIBRARIES})
 

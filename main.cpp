@@ -3,6 +3,7 @@
 #include "settings.h"
 #include "mainwindow.h"
 #include <string>
+#include "controller.h"
 #ifndef WXWX_PRECOMP
 #include <wx/wx.h>
 #endif
