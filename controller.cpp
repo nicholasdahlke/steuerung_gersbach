@@ -5,12 +5,12 @@
 Controller::Controller() {
 
 }
-void Controller::setIp(std::string& ip) {
+void Controller::setIp(std::string const& ip) {
     if (ip == "")
         return;
     Controller::ip_addr = ip;
 }
-void Controller::setPort(std::string &port) {
+void Controller::setPort(std::string const& port) {
     if(port == "")
         return;
     Controller::port = port;

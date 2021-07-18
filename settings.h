@@ -6,6 +6,7 @@
 class Settings : public wxDialog {
 public:
     Settings(const wxString& title);
+    Settings();
     wxString server = "";
     wxString port = "443";
     std::string getIp(){return std::string(server);};
@@ -19,7 +20,6 @@ private:
     void OnSave(wxCommandEvent& event);
     bool ReadText(wxTextCtrl *textCtrl, wxString *content);
     bool writeSettings(std::vector<std::vector<wxString>> content);
-    void readToml(std::string content, wxTextCtrl *textCtrl);
     std::string readToml(std::string content);
     std::string getConfFile();
 };

@@ -69,8 +69,10 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
     wxTextCtrl *port_tc = new wxTextCtrl(panel, ID_PORT, wxT(" "), wxPoint(100, 75));
 
     if (wxFileExists(getConfFile())) {
-        readToml("server", server_tc);
-        readToml("port", port_tc);
+       server_tc->SetValue(readToml("server"));
+       port_tc->SetValue(readToml("port"));
+       Settings::server = readToml("server");
+       Settings::port = readToml("port");
     }
 
     server_tc->SetToolTip("IP Adresse des Servers, z.B 123.456.78.90");
@@ -98,6 +100,13 @@ Settings::Settings(const wxString &title) : wxDialog(NULL, -1, title, wxDefaultP
     ShowModal();
 
     Destroy();
+}
+
+Settings::Settings() {
+    if (wxFileExists(getConfFile())) {
+        Settings::server = readToml("server");
+        Settings::port = readToml("port");
+    }
 }
 
 bool Settings::ReadText(wxTextCtrl *textCtrl, wxString *content) {
@@ -153,7 +162,7 @@ void Settings::OnSave(wxCommandEvent &event) {
         }
     }
     for (auto const &value: server) {
-        if (!isdigit(value)) {
+        if (!isalnum(value)) {
             if(ispunct(value))
                 break;
             if (!ispunct(value)) {
@@ -178,7 +187,7 @@ void Settings::OnClose(wxCommandEvent &event) {
     Close(true);
 }
 
-void Settings::readToml(std::string content, wxTextCtrl *textCtrl) {
+std::string Settings::readToml(std::string content) {
     toml::table tbl;
     try {
         tbl = toml::parse_file(getConfFile());
@@ -186,11 +195,11 @@ void Settings::readToml(std::string content, wxTextCtrl *textCtrl) {
     }
     catch(const toml::parse_error& err) {
         std::cerr << "Parsing failed: \n" << err << std::endl;
-        return;
+        return "Error";
     }
     std::optional<std::string> str = tbl[content].value<std::string>();
-    textCtrl->SetValue(str.value_or(""));
-    return;
+    return str.value_or("");
+
 }
 
 
@@ -205,18 +214,4 @@ std::string Settings::getConfFile() {
 #endif
     return getConfigPath() + directory_escape + "config.toml";
 
-}
-
-std::string Settings::readToml(std::string content) {
-    toml::table tbl;
-    try {
-        tbl = toml::parse_file(getConfFile());
-        std::cout << tbl << std::endl;
-    }
-    catch(const toml::parse_error& err) {
-        std::cerr << "Parsing failed: \n" << err << std::endl;
-        return "error";
-    }
-    std::optional<std::string> str = tbl[content].value<std::string>();
-    return str.value_or("");
 }

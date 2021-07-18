@@ -4,8 +4,8 @@
 class Controller {
 public:
     Controller();
-    void setIp(std::string& ip);
-    void setPort(std::string& port);
+    void setIp(std::string const& ip);
+    void setPort(std::string const& port);
     int getConnectionStatus();
 private:
     std::string ip_addr;

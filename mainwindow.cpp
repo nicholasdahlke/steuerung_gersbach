@@ -88,5 +88,9 @@ void MainWindow::OnConnect(wxCommandEvent &event) {
     Controller *connection = new Controller();
     Settings *settings = new Settings();
 
-    connection->setIp();
+    connection->setIp(std::string(settings->getIp()));
+    connection->setPort(std::string(settings->getPort()));
+    connection->getConnectionStatus();
+
+
 }
